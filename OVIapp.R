@@ -40,19 +40,27 @@ server <- function(input, output, session) {
   data <- reactive({
     inFile <- input$fa
     if (is.null(inFile)) return(NULL)
-    data <- read.csv(inFile$datapath, header = TRUE)
+    data <- read_csv(inFile$datapath, na = "#N/A")
     data
+    
   })
   #- csv to long format - needed for ggplot2
   myData <- reactive({
     inFile <- input$fa
     if (is.null(inFile)) return(NULL)
-    data <- read.csv(inFile$datapath, header = TRUE)
+    data <- read.csv(inFile$datapath, header = TRUE, na.strings = "#N/A")
     data <- data |> 
       pivot_longer(cols = everything(),
                    names_to = 'condition',
                    values_to = 'dv',
                    values_drop_na = T)
+    
+    data<- as.matrix(data)
+    ssn<- seq.int(nrow(data))
+    ssn<- as.integer(ssn)
+    data <- cbind(data,ssn)
+    data<-as_data_frame(data)
+    data<-data[, c(3,2,1)]
   })
   
   #- display wide table
