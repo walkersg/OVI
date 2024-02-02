@@ -26,7 +26,9 @@ ui <- fluidPage(
 
 tableOutput("display"),
 
-tableOutput("display1")
+tableOutput("display1"),
+
+plotOutput("multielement")
 )
 
 
@@ -63,6 +65,16 @@ server <- function(input, output, session) {
     data<-data[, c(3,2,1)]
   })
   
+  multielement <- reactive({
+    myData() |> 
+      ggplot(aes(x = ssn, y = dv, shape = condition))+
+      geom_point(show.legend = T)+
+      geom_path()+
+      theme_classic()+
+      theme(aspect.ratio = .5)
+    
+  })
+  
   #- display wide table
   output$display <- renderTable({
     data()
@@ -71,6 +83,11 @@ server <- function(input, output, session) {
   #- display narrow table
   output$display1 <- renderTable({
     myData()
+  })
+  
+  #- display plot
+  output$multielement<- renderPlot({
+    multielement()
   })
   
   }
