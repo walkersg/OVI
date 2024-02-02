@@ -26,7 +26,7 @@ ui <- fluidPage(
 
 tableOutput("display"),
 
-tableOutput("display1"),
+#tableOutput("display1"),
 
 plotOutput("multielement")
 )
@@ -39,7 +39,7 @@ plotOutput("multielement")
 server <- function(input, output, session) {
   
 #- csv to table format
-  data <- reactive({
+  dataWide <- reactive({
     inFile <- input$fa
     if (is.null(inFile)) return(NULL)
     data <- read_csv(inFile$datapath, na = "#N/A")
@@ -65,25 +65,31 @@ server <- function(input, output, session) {
     data<-data[, c(3,2,1)]
   })
   
+
+  
   multielement <- reactive({
+    
     myData() |> 
-      ggplot(aes(x = ssn, y = dv, shape = condition))+
-      geom_point(show.legend = T)+
+      ggplot(aes(x =as.numeric(ssn), y = as.numeric(dv), shape = condition))+
+      geom_point(show.legend = T, size = 5)+
       geom_path()+
-      theme_classic()+
-      theme(aspect.ratio = .5)
+      geom_abline(data = mean(data[]) )
+      theme_classic(base_size = 20)+
+      theme(aspect.ratio = .5)+
+      ylab("Rate")+
+      xlab("Sessions")
     
   })
   
   #- display wide table
   output$display <- renderTable({
-    data()
+    dataWide()
     })
   
   #- display narrow table
-  output$display1 <- renderTable({
-    myData()
-  })
+ #output$display1 <- renderTable({
+ #control()
+#  })
   
   #- display plot
   output$multielement<- renderPlot({
@@ -93,7 +99,5 @@ server <- function(input, output, session) {
   }
 
     
-  
-
 shinyApp(ui, server)
 
