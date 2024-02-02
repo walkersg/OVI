@@ -1,11 +1,13 @@
 library(tidyverse)
-data <- read.csv("C:/Users/walke/Downloads/testdata.csv")
+
+Test_FA_data <- read_csv("C:/Users/Seth/Downloads/Test_FA_data.csv", na = "#N/A")
 
 #- Convert to a format amenable to multielement graphing 2 x n with NA values removed
 
 #heads<- colnames(data)
 
-df <- data |> 
+
+df <- Test_FA_data |> 
   pivot_longer(cols = everything(),
                names_to = 'condition',
                values_to = 'dv',
