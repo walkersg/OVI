@@ -69,13 +69,21 @@ server <- function(input, output, session) {
 #lower criterion line xhat - sd for control condition
 ## need to embed an if-else for control == 0
 lcl <- reactive({
-  (mean(dataWide()$control,na.rm = T)-sd(dataWide()$control,na.rm = T))
+  if (sum(dataWide()$control, na.rm = T) == 0) {
+    lcl =  0
+  }else{
+    lcl = (mean(dataWide()$control, na.rm = T)-sd(dataWide()$control,na.rm = T))
+  }
 })
 
 #upper criterion line xhat + sd for control condition
 ## need to embed an if-else for control == 0
 ucl <- reactive({
+  if (sum(dataWide()$control, na.rm = T) == 0) {
+    ucl = 0
+  } else {
   (mean(dataWide()$control,na.rm = T)+sd(dataWide()$control,na.rm = T))
+  }
 })
   
   multielement <- reactive({
@@ -90,8 +98,9 @@ ucl <- reactive({
       geom_abline(slope = 0, intercept = ucl(),linetype = 2, color = 'green')+
       theme_classic(base_size = 20)+
       theme(aspect.ratio = .5)+
-      ylab("Rate")+
-      xlab("Sessions")
+      #ylab("Rate")+
+      #xlab("Sessions")+
+      labs(title = "FA Data\n", x = "Sessions", y = "Rate", shape = "Conditions\n")
     
   })
   
