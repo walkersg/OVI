@@ -29,6 +29,7 @@ tableOutput("display"),
 #tableOutput("display1"),
 
 plotOutput("multielement")
+
 )
 
 
@@ -69,11 +70,13 @@ server <- function(input, output, session) {
   
   multielement <- reactive({
     
+  
+    
     myData() |> 
       ggplot(aes(x =as.numeric(ssn), y = as.numeric(dv), shape = condition))+
       geom_point(show.legend = T, size = 5)+
       geom_path()+
-      geom_abline(data = mean(data[]) )
+      geom_abline(slope = 0, intercept = 1)+ #need this to use mean(myData$control)
       theme_classic(base_size = 20)+
       theme(aspect.ratio = .5)+
       ylab("Rate")+
