@@ -65,8 +65,18 @@ server <- function(input, output, session) {
     data<-as_data_frame(data)
     data<-data[, c(3,2,1)]
   })
-  
 
+#lower criterion line xhat - sd for control condition
+## need to embed an if-else for control == 0
+lcl <- reactive({
+  (mean(dataWide()$control,na.rm = T)-sd(dataWide()$control,na.rm = T))
+})
+
+#upper criterion line xhat + sd for control condition
+## need to embed an if-else for control == 0
+ucl <- reactive({
+  (mean(dataWide()$control,na.rm = T)+sd(dataWide()$control,na.rm = T))
+})
   
   multielement <- reactive({
     
@@ -76,7 +86,8 @@ server <- function(input, output, session) {
       ggplot(aes(x =as.numeric(ssn), y = as.numeric(dv), shape = condition))+
       geom_point(show.legend = T, size = 5)+
       geom_path()+
-      geom_abline(slope = 0, intercept = 1)+ #need this to use mean(myData$control)
+      geom_abline(slope = 0, intercept = lcl(),linetype = 3, color = 'red')+
+      geom_abline(slope = 0, intercept = ucl(),linetype = 2, color = 'green')+
       theme_classic(base_size = 20)+
       theme(aspect.ratio = .5)+
       ylab("Rate")+
