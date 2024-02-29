@@ -72,6 +72,8 @@ server <- function(input, output, session) {
     lcl =  0
   }else{
     lcl = (mean(dataWide()$control, na.rm = T)-sd(dataWide()$control,na.rm = T))
+    if (lcl<0)
+      lcl = 0
   }
 })
 
