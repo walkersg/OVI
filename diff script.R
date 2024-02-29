@@ -11,53 +11,60 @@
 #points in that condition, and convert the result to
 #a percentage.
 
-
-
 library(tidyverse)
 
-#load data
-testdata <- read_csv("testdata.csv",na = "#N/A")
 
+testdata <- read_csv("testdata2.csv", na = "#N/A")
 
+#convert long to drop NA
+testdata<-testdata |> 
+  pivot_longer(cols = everything(),
+               names_to = 'condition',
+               values_to = 'dv',
+               values_drop_na = T)
+testdata<-testdata |> 
+  pivot_wider(names_from = "condition",values_from = "dv")
 
-# remove data and organize in array
-df = na.omit(testdata[1])[[1]]
-df1<- na.omit(testdata[2])[[1]]
+testdata<- unnest(testdata)
 
 #create empty lists
 df1dif<-c()
 df1u<-c()
+difCond<-c()
 
 #placeholder for upper criterion line
-x = mean(df)+sd(df)
+x = mean(testdata[[1]],na.rm = T) + sd(testdata[[1]],na.rm = T)
 
 #placeholder for lower criterion line
-y = mean(df)-sd(df)
+y = mean(testdata[[1]],na.rm = T) - sd(testdata[[1]],na.rm = T)
+if (y<0) {
+  y=0
+}
 
- 
+for (i in 2:as.numeric(ncol(testdata))) {
+  
 # number of data that are above the ucl placeholder (x) 
-for (counter in df1){
+for (counter in testdata[[i]]){
   if (counter>x){
     df1dif= c(df1dif,counter)
   }
   if(counter<y)
     df1u = c(df1u,counter)
   }
-}
+
 
 # converts arrays to numeric length
 df1dif=as.numeric(length(df1dif))
 df1u = as.numeric(length(df1u))
-condlength = as.numeric(length(df1))
-
-abs(df1u-df1dif)/condlength
+condlength = as.numeric(length(testdata[[i]]))
 
 #checks to see if the number of data identified in the
 #above the ucl is at least 50% greater than those below
-if ((df1u-df1dif)/condlength>.5) {
-  paste("differentiated")
+if (abs(df1u-df1dif)/condlength>.5) {
+  difCond<- rbind(difCond, paste(colnames(testdata[i])))
 }else{
-  paste("undifferentiated")
+  difCond<- rbind(difCond, paste(colnames(testdata[i])))
 }
-
-
+}
+colnames(difCond)<- "Differentiated Conditions"
+difCond
