@@ -24,9 +24,9 @@ ui <- fluidPage(
   
   #textInput("control", "Input the name of the control condition", value = "case sensitive"),
 
-tableOutput("display"),
+#tableOutput("display"),
 
-#tableOutput("display1"),
+tableOutput("differentiated"),
 
 plotOutput("multielement")
 
@@ -67,7 +67,7 @@ server <- function(input, output, session) {
   })
 
 #lower criterion line xhat - sd for control condition
-lcl <- reactive({
+  lcl <- reactive({
   if (sum(dataWide()$control, na.rm = T) == 0) {
     lcl =  0
   }else{
@@ -76,11 +76,11 @@ lcl <- reactive({
 })
 
 #upper criterion line xhat + sd for control condition
-ucl <- reactive({
+  ucl <- reactive({
   if (sum(dataWide()$control, na.rm = T) == 0) {
     ucl = 0
   } else {
-  (mean(dataWide()$control,na.rm = T)+sd(dataWide()$control,na.rm = T))
+  (mean(dataWide()$control,na.rm = T) + sd(dataWide()$control,na.rm = T))
   }
 })
 
@@ -103,21 +103,71 @@ ucl <- reactive({
     
   })
   
-  #- display wide table
-  output$display <- renderTable({
-    dataWide()
-    })
+
+  diff <- reactive({
+    
+    testdata<- myData() |> 
+      pivot_wider(names_from = "condition",values_from = "dv")
+    
+    testdata<- unnest(testdata)
+    
+    #create empty lists
+    df1dif<-c()
+    df1u<-c()
+    difCond<-c()
+    
+    #placeholder for upper criterion line
+    
+    #placeholder for lower criterion line
+    #if (lcl()<0) {
+    #  y <- 0
+    #}
+    
+    for (i in 2:as.numeric(ncol(testdata))) {
+      
+      # number of data that are above the ucl placeholder (x) 
+      for (counter in is.na(testdata[[i]])){
+        if (counter>ucl()){
+          df1dif= c(df1dif,counter)
+        }
+        if(counter<lcl())
+          df1u = c(df1u,counter)
+      }
+      
+      
+      # converts arrays to numeric length
+      df1dif=as.numeric(length(df1dif))
+      df1u = as.numeric(length(df1u))
+      condlength = as.numeric(length(testdata[[i]]))
+      
+      #checks to see if the number of data identified in the
+      #above the ucl is at least 50% greater than those below
+      if (abs(df1u-df1dif)/condlength>.5) {
+        difCond<- rbind(difCond, paste(colnames(testdata[i])))
+      }else{
+        difCond<- rbind(difCond, paste(colnames(testdata[i])))
+      }
+    }
+    colnames(difCond)<- "Differentiated Conditions"
+    difCond
+    
+    
+  })
   
-  #- display narrow table
- #output$display1 <- renderTable({
- #control()
-#  })
+  #- display wide table
+  #output$display <- renderTable({
+    #dataWide()
+   # })
   
   #- display plot
   output$multielement<- renderPlot({
     multielement()
   })
   
+  #- display differentiated conditions
+  output$differentiated<-renderTable({
+    diff()
+  })
   }
 
     
