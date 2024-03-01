@@ -123,10 +123,10 @@ server <- function(input, output, session) {
       
       # number of data that are above the ucl placeholder (x) 
       for (counter in 1:length(testdata[,i])){
-        if (counter[,i]>ucl()){
+        if (testdata[counter,i]>ucl()){
           df1dif= c(df1dif,counter)
         }
-        if(counter<lcl())
+        if(testdata[counter,i]<lcl())
           df1u = c(df1u,counter)
       }
       
