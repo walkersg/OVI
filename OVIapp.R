@@ -49,10 +49,7 @@ server <- function(input, output, session) {
   })
   #- csv to long format - needed for ggplot2
   myData <- reactive({
-    inFile <- input$fa
-    if (is.null(inFile)) return(NULL)
-    data <- read.csv(inFile$datapath, header = TRUE, na.strings = "#N/A")
-    data <- data |> 
+    data <- dataWide() |> 
       pivot_longer(cols = everything(),
                    names_to = 'condition',
                    values_to = 'dv',
@@ -68,7 +65,7 @@ server <- function(input, output, session) {
 
 #lower criterion line xhat - sd for control condition
   lcl <- reactive({
-  if (mean(dataWide()$control, na.rm = T)-sd(dataWide()$control,na.rm = T) <0 ) {
+  if (mean(dataWide()$control, na.rm = T)-sd(dataWide()$control,na.rm = T) < 0 ) {
     lcl =  0
   }else{
     lcl = (mean(dataWide()$control, na.rm = T)-sd(dataWide()$control,na.rm = T))
@@ -80,15 +77,14 @@ server <- function(input, output, session) {
   if (sum(dataWide()$control, na.rm = T) == 0) {
     ucl = 0
   } else {
-  (mean(dataWide()$control,na.rm = T) + sd(dataWide()$control,na.rm = T))
+  (mean(dataWide()$control, na.rm = T) + sd(dataWide()$control,na.rm = T))
   }
 })
 
-## need a loop that calculates the number of data per condition
-## that are > ucl and calculated that as a proportion of length(condition)
+#create multielement graph with upper and lower criterion lines
   
   multielement <- reactive({
-    print("multielement")
+
   
     
     myData() |> 
@@ -102,43 +98,55 @@ server <- function(input, output, session) {
       labs(title = "FA Data\n", x = "Sessions", y = "Rate", shape = "Conditions\n")
     
   })
-  
+ 
+  #calculate the an index of the number of data above the UCL and 
+  #below the LCL NOT in between 
 
   diff <- reactive({
     testdata<- myData()
-    
+  
+    ## remove session column  
     testdata<- testdata |> select(2:ncol(testdata))
     
+    ##pivot back to wide without NA vals
     testdata<- testdata |> 
       pivot_wider(names_from = "condition",values_from = "dv")
     
     testdata<- unnest(testdata)
     
+    testdata<- testdata |> mutate_at(1:ncol(testdata), as.numeric)
+    
+    testdata<- testdata |> select(2:ncol(testdata))
+    
+    print(testdata)
     #create empty lists
     df1dif<-c()
     df1u<-c()
     difCond<-c()
     
-    for (i in 2:as.numeric(ncol(testdata))) {
+    for (i in 1:ncol(testdata)) {
+      condlength = as.numeric(nrow(testdata[,i]))
       
       # number of data that are above the ucl placeholder (x) 
-      for (counter in 1:length(testdata[,i])){
-        if (testdata[counter,i]>ucl()){
+      for (counter in testdata[1:length(testdata[,i]),i]){
+        if (counter>ucl()){
           df1dif= c(df1dif,counter)
+          print(df1dif)
         }
-        if(testdata[counter,i]<lcl())
+        if(counter<lcl())
           df1u = c(df1u,counter)
+        print(df1u)
       }
       
-      
+     #debug here 
       # converts arrays to numeric length
       df1dif=as.numeric(length(df1dif))
       df1u = as.numeric(length(df1u))
-      condlength = as.numeric(nrow(testdata[,i]))
+      
       
       #checks to see if the number of data identified in the
       #above the ucl is at least 50% greater than those below
-      if (abs(df1u-df1dif)/condlength >.5) {
+      if (abs(df1dif-df1u)/condlength >.5) {
         difCond<- rbind(difCond, paste(colnames(testdata[,i]),"YES"))
       }else{
         difCond<- rbind(difCond, paste(colnames(testdata[,i]),"NO"))
