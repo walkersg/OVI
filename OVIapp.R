@@ -117,47 +117,40 @@ server <- function(input, output, session) {
     testdata<- testdata |> mutate_at(1:ncol(testdata), as.numeric)
     
     testdata<- testdata |> select(2:ncol(testdata))
+    testdata<- as.data.frame(testdata)
     
-    print(testdata)
     #create empty lists
     df1dif<-c()
     df1u<-c()
     difCond<-c()
     
-    for (i in 1:ncol(testdata)) {
-      condlength = as.numeric(nrow(testdata[,i]))
-      
+    for (i in 1:length(testdata)){
+      condlength = as.numeric(length(testdata[,i]))
       # number of data that are above the ucl placeholder (x) 
-      for (counter in testdata[1:length(testdata[,i]),i]){
+      for (counter in testdata[,i]){
         if (counter>ucl()){
           df1dif= c(df1dif,counter)
-          print(df1dif)
         }
         if(counter<lcl())
           df1u = c(df1u,counter)
-        print(df1u)
       }
-      
-     #debug here 
       # converts arrays to numeric length
       df1dif=as.numeric(length(df1dif))
       df1u = as.numeric(length(df1u))
       
-      
       #checks to see if the number of data identified in the
       #above the ucl is at least 50% greater than those below
-      if (abs(df1dif-df1u)/condlength >.5) {
-        difCond<- rbind(difCond, paste(colnames(testdata[,i]),"YES"))
+      if ((df1dif-df1u)/condlength>.5) {
+        difCond<- rbind(difCond,paste(colnames(testdata)[i],"-","YES"))
       }else{
-        difCond<- rbind(difCond, paste(colnames(testdata[,i]),"NO"))
+        difCond<- rbind(difCond,paste(colnames(testdata)[i],"-","NO"))
       }
     }
-    colnames(difCond)<- "Differentiated Conditions"
+    difCond<-as.data.frame(difCond)
+    colnames(difCond) = "Differentiated Conditions"
     difCond
-    
-    
   })
-  
+
   #- display wide table
   #output$display <- renderTable({
     #dataWide()
