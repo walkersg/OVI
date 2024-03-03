@@ -18,18 +18,36 @@ ui <- fluidPage(
   
   titlePanel("OVI Tool"),
   
-  
-  fileInput("fa","Upload CSV", accept = ".csv"),
-
-  
-  #textInput("control", "Input the name of the control condition", value = "case sensitive"),
-
-#tableOutput("display"),
-
-tableOutput("differentiated"),
-
-plotOutput("multielement")
-
+sidebarLayout(
+    
+  #data upload relegated to sidepanel
+    sidebarPanel(fileInput("fa","Upload CSV", accept = ".csv"),
+                 tableOutput("differentiated")),
+    
+    #info about project and how to
+    mainPanel(
+      h2("Visual Inspection Assistant"),
+      p("Based on: Roane, H. S., Fisher, W. W., Kelley, M. E., Mevers, J. L., & Bouxsein, 
+        K. J. (2013). Using modified visual‐inspection criteria to interpret functional
+        analysis outcomes. Journal of Applied Behavior Analysis, 46(1), 130-146."),
+      p("How To: Upload data in .csv form with the 
+        control or toy play condition listed first. Each subsequent column
+        will be treated as a test condition. Upper (green) and lower (red) criterion lines are generated using 
+        the mean of the control condition plus and minus one standard 
+        deviation respectively."),
+      tags$a(href="www/testdata.png", "Example Data", download="exampledata.png"),
+      p("Created by: Seth Walker, PhD, BCBA-D. Contact: sethgregorywalker@gmail.com"),
+      tags$a(href="https://www.sethgregorywalker.com", "www.sethgregorywalker.com"),
+      
+      #download link for sample data
+      
+      #multielement plot of uploaded data
+      plotOutput("multielement"),
+              
+      tags$style(type="text/css",
+         ".shiny-output-error { visibility: hidden; }",
+         ".shiny-output-error:before { visibility: hidden; }"))
+    ),
 )
 
 
@@ -49,11 +67,12 @@ server <- function(input, output, session) {
   })
   #- csv to long format - needed for ggplot2
   myData <- reactive({
-    data <- dataWide() |> 
+    data <- dataWide() |>
       pivot_longer(cols = everything(),
                    names_to = 'condition',
                    values_to = 'dv',
                    values_drop_na = T)
+    
     
     data<- as.matrix(data)
     ssn<- seq.int(nrow(data))
@@ -131,7 +150,7 @@ server <- function(input, output, session) {
         if (counter>ucl()){
           df1dif= c(df1dif,counter)
         }
-        if(counter<lcl())
+        if(counter<=lcl())
           df1u = c(df1u,counter)
       }
       # converts arrays to numeric length
