@@ -35,7 +35,8 @@ sidebarLayout(
         will be treated as a test condition. Upper (green) and lower (red) criterion lines are generated using 
         the mean of the control condition plus and minus one standard 
         deviation respectively."),
-      tags$a(href="www/testdata.png", "Example Data", download="exampledata.png"),
+      p("For an example data set click the hyperlink below"),
+      tags$a(href="www/testdata2.csv", "Example Data", download="exampledata.csv"),
       p("Created by: Seth Walker, PhD, BCBA-D. Contact: sethgregorywalker@gmail.com"),
       tags$a(href="https://www.sethgregorywalker.com", "www.sethgregorywalker.com"),
       
