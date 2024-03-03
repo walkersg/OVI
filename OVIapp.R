@@ -36,7 +36,7 @@ sidebarLayout(
         the mean of the control condition plus and minus one standard 
         deviation respectively."),
       p("For an example data set click the hyperlink below"),
-      tags$a(href="www/testdata2.csv", "Example Data", download="exampledata.csv"),
+      tags$a(href='testdata2.csv', 'Example Data', download='exampledata.csv'),
       p("Created by: Seth Walker, PhD, BCBA-D. Contact: sethgregorywalker@gmail.com"),
       tags$a(href="https://www.sethgregorywalker.com", "www.sethgregorywalker.com"),
       
@@ -48,7 +48,7 @@ sidebarLayout(
       tags$style(type="text/css",
          ".shiny-output-error { visibility: hidden; }",
          ".shiny-output-error:before { visibility: hidden; }"))
-    ),
+    )
 )
 
 
@@ -85,19 +85,19 @@ server <- function(input, output, session) {
 
 #lower criterion line xhat - sd for control condition
   lcl <- reactive({
-  if (mean(dataWide()$control, na.rm = T)-sd(dataWide()$control,na.rm = T) < 0 ) {
+  if (mean(dataWide()$Control, na.rm = T)-sd(dataWide()$Control,na.rm = T) < 0 ) {
     lcl =  0
   }else{
-    lcl = (mean(dataWide()$control, na.rm = T)-sd(dataWide()$control,na.rm = T))
+    lcl = (mean(dataWide()$Control, na.rm = T)-sd(dataWide()$Control,na.rm = T))
   }
 })
 
 #upper criterion line xhat + sd for control condition
   ucl <- reactive({
-  if (sum(dataWide()$control, na.rm = T) == 0) {
+  if (sum(dataWide()$Control, na.rm = T) == 0) {
     ucl = 0
   } else {
-  (mean(dataWide()$control, na.rm = T) + sd(dataWide()$control,na.rm = T))
+  (mean(dataWide()$Control, na.rm = T) + sd(dataWide()$Control,na.rm = T))
   }
 })
 
