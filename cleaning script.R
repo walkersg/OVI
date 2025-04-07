@@ -1,6 +1,7 @@
 library(tidyverse)
 
-Test_FA_data <- read_csv("C:/Users/Seth/Downloads/Test_FA_data.csv", na = "#N/A")
+#path to test functional analysis data
+Test_FA_data <- read_csv(FA_path, na = "#N/A")
 
 #- Convert to a format amenable to multielement graphing 2 x n with NA values removed
 
