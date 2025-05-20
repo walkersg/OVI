@@ -1,5 +1,7 @@
 # OVI Tool (Visual Inspection Assistant) - R Shiny App
 
+The tool can be accessed via Shinyapps.io at the following link: [OVI assistant] (https://ri404a-seth-walker.shinyapps.io/OVIAssistant/)
+
 ## Table of Contents
 - [Overview](#overview)
 - [Features](#features)
